@@ -1,7 +1,8 @@
+"use client"
+
 import Image from "next/image";
 import { useState, useRef } from "react";
 import { DrawingCanvas } from "../components/DrawingCanvas";
-import "./App.css";
 
 // Custom color palette
 const customColors = [

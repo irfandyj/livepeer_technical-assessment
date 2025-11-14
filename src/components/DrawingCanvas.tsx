@@ -7,11 +7,16 @@ import { STREAMING_CONFIG } from "../lib/streamingConfig";
 import { createSilentAudioTrack } from "../lib/audioTrackManager";
 import { streamStabilizer } from "../lib/streamStabilizer";
 
+export interface StreamOptions {
+  stabilize?: boolean;
+  addSilentAudioTrack?: boolean;
+}
+
 export interface DrawingCanvasProps {
   /**
    * Enable/disable stream stabilization
    */
-  stabilizeStream?: boolean;
+  streamOptions?: StreamOptions;
 
   /**
    * Callback when the canvas stream is ready
@@ -91,7 +96,7 @@ export interface DrawingCanvasProps {
 }
 
 export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
-  stabilizeStream = true,
+  streamOptions = { stabilize: true, addSilentAudioTrack: true },
   onStreamReady,
   width = STREAMING_CONFIG.WIDTH,
   height = STREAMING_CONFIG.HEIGHT,
@@ -328,14 +333,14 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     }
 
     // Wait for canvas to stabilize before creating stream
-    if (stabilizeStream) {
+    if (streamOptions?.stabilize) {
       await streamStabilizer.waitForCanvasStreamStability(canvas, fps);
     }
 
     const stream = canvas.captureStream(fps);
 
     // Validate stream stability
-    if (stabilizeStream) {
+    if (streamOptions?.stabilize) {
       try {
         await streamStabilizer.validateStreamStability(stream, {
           minStableFrames: 3,
@@ -348,8 +353,10 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     }
 
     // Add silent audio track for compatibility
-    const audioTrack = createSilentAudioTrack();
-    stream.addTrack(audioTrack);
+    if (streamOptions?.addSilentAudioTrack) {
+      const audioTrack = createSilentAudioTrack();
+      stream.addTrack(audioTrack);
+    }
 
     streamRef.current = stream;
     streamCreatedRef.current = true;

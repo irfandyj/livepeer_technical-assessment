@@ -198,7 +198,7 @@ export default function Home() {
             </div>
             <div className="canvas-wrapper">
               <DrawingCanvas
-                stabilizeStream={false}
+                streamOptions={{ stabilize: false, addSilentAudioTrack: false }}
                 onStreamReady={handleRecordingStreamReady}
                 fps={60}
                 initialColor="#FF0000"

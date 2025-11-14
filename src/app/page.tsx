@@ -196,17 +196,32 @@ export default function Home() {
                 <span className="recording-indicator">Recording...</span>
               )}
             </div>
-            <div className="canvas-wrapper">
+            <div className="canvas-wrapper gap-4 relative w-full min-h-[760px]">
               <DrawingCanvas
                 streamOptions={{ stabilize: false, addSilentAudioTrack: false }}
                 onStreamReady={handleRecordingStreamReady}
                 fps={60}
                 initialColor="#FF0000"
-                className="drawing-canvas-container"
+                className="
+                  drawing-canvas-container
+                  absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                "
                 canvasClassName="custom-canvas"
               />
-              <div>
-                <video src={videoUrl} controls autoPlay muted></video>
+              <div className="
+                absolute translate-x-1/2 left-[calc(600px+16px)]
+                w-[560px] h-[560px]
+              ">
+                <video
+                  controls
+                  autoPlay
+                  muted
+                  width="560px"
+                  height="560px"
+                  src={videoUrl}
+                  className="absolute top-0 left-0 w-[560px] h-[560px] object-cover"
+                >
+                </video>
               </div>
             </div>
           </div>

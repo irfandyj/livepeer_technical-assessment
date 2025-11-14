@@ -9,6 +9,11 @@ import { streamStabilizer } from "../lib/streamStabilizer";
 
 export interface DrawingCanvasProps {
   /**
+   * Enable/disable stream stabilization
+   */
+  stabilizeStream?: boolean;
+
+  /**
    * Callback when the canvas stream is ready
    */
   onStreamReady?: (stream: MediaStream) => void;
@@ -86,6 +91,7 @@ export interface DrawingCanvasProps {
 }
 
 export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
+  stabilizeStream = true,
   onStreamReady,
   width = STREAMING_CONFIG.WIDTH,
   height = STREAMING_CONFIG.HEIGHT,
@@ -322,19 +328,23 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     }
 
     // Wait for canvas to stabilize before creating stream
-    await streamStabilizer.waitForCanvasStreamStability(canvas, fps);
+    if (stabilizeStream) {
+      await streamStabilizer.waitForCanvasStreamStability(canvas, fps);
+    }
 
     const stream = canvas.captureStream(fps);
 
     // Validate stream stability
-    try {
-      await streamStabilizer.validateStreamStability(stream, {
-        minStableFrames: 3,
-        timeoutMs: 2000,
-        validateAudio: false,
-      });
-    } catch (error) {
-      console.warn("Stream validation warning:", error);
+    if (stabilizeStream) {
+      try {
+        await streamStabilizer.validateStreamStability(stream, {
+          minStableFrames: 3,
+          timeoutMs: 2000,
+          validateAudio: false,
+        });
+      } catch (error) {
+        console.warn("Stream validation warning:", error);
+      }
     }
 
     // Add silent audio track for compatibility

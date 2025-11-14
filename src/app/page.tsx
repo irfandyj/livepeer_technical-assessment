@@ -196,7 +196,11 @@ export default function Home() {
                 <span className="recording-indicator">Recording...</span>
               )}
             </div>
-            <div className="canvas-wrapper gap-4 relative w-full min-h-[760px]">
+            <div className="canvas-wrapper
+              flex flex-col 2xl:flex-row gap-4
+              w-full
+              2xl:relative 
+              2xl:min-h-[760px]">
               <DrawingCanvas
                 streamOptions={{ stabilize: false, addSilentAudioTrack: false }}
                 onStreamReady={handleRecordingStreamReady}
@@ -204,14 +208,15 @@ export default function Home() {
                 initialColor="#FF0000"
                 className="
                   drawing-canvas-container
-                  absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                  2xl:absolute 2xl:top-1/2 2xl:left-1/2 2xl:-translate-x-1/2 2xl:-translate-y-1/2
                 "
                 canvasClassName="custom-canvas"
               />
               <div
                 className="
-                  absolute translate-x-1/2 left-[calc(600px+16px)]
-                  w-[560px] h-[560px]
+                  mx-auto
+                  2xl:absolute  2xl:left-full 2xl:-translate-x-1/2
+                  2xl:w-[420px] 2xl:h-[420px]
                 "
               >
                 <video
@@ -219,13 +224,11 @@ export default function Home() {
                   controls
                   autoPlay
                   muted
-                  width="560px"
-                  height="560px"
                   src={videoUrl}
                   className='
                     opacity-0 data-[show-video="true"]:opacity-100
                     transition-opacity ease-in-out delay-150 duration-1000
-                    absolute top-0 left-0 w-[560px] h-[560px] object-cover
+                    2xl:absolute 2xl:top-0 2xl:left-0 2xl:w-[420px] 2xl:h-[420px] 2xl:object-cover
                   '
                 >
                 </video>

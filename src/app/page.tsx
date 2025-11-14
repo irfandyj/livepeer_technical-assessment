@@ -208,18 +208,25 @@ export default function Home() {
                 "
                 canvasClassName="custom-canvas"
               />
-              <div className="
-                absolute translate-x-1/2 left-[calc(600px+16px)]
-                w-[560px] h-[560px]
-              ">
+              <div
+                className="
+                  absolute translate-x-1/2 left-[calc(600px+16px)]
+                  w-[560px] h-[560px]
+                "
+              >
                 <video
+                  data-show-video={typeof videoUrl === "string" ? "true" : "false"}
                   controls
                   autoPlay
                   muted
                   width="560px"
                   height="560px"
                   src={videoUrl}
-                  className="absolute top-0 left-0 w-[560px] h-[560px] object-cover"
+                  className='
+                    opacity-0 data-[show-video="true"]:opacity-100
+                    transition-opacity ease-in-out delay-150 duration-1000
+                    absolute top-0 left-0 w-[560px] h-[560px] object-cover
+                  '
                 >
                 </video>
               </div>

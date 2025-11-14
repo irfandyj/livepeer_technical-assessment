@@ -1,7 +1,6 @@
 "use client"
 
-import Image from "next/image";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef } from "react";
 import { DrawingCanvas } from "../components/DrawingCanvas";
 
 // Custom color palette

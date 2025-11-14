@@ -48,11 +48,15 @@ export const useBackgroundStreaming = ({
       }
 
       // Request frame if available (Chrome-specific optimization)
+      interface VideoTrackWithRequestFrame extends MediaStreamTrack {
+        requestFrame?: () => void;
+      }
+      const trackWithRequestFrame = videoTrack as VideoTrackWithRequestFrame;
       if (
-        "requestFrame" in videoTrack &&
-        typeof (videoTrack as any).requestFrame === "function"
+        "requestFrame" in trackWithRequestFrame &&
+        typeof trackWithRequestFrame.requestFrame === "function"
       ) {
-        (videoTrack as any).requestFrame();
+        trackWithRequestFrame.requestFrame();
       }
     }, 1000 / fps);
   }, [enabled, canvas, stream, onBackgroundFrame, fps]);

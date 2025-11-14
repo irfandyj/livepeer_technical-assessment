@@ -61,7 +61,7 @@ class AudioTrackManager {
       try {
         this.oscillator.stop();
         this.oscillator.disconnect();
-      } catch (error) {
+      } catch {
         // Oscillator might already be stopped
       }
       this.oscillator = null;

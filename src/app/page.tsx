@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { DrawingCanvas } from "../components/DrawingCanvas";
 
 // Custom color palette
@@ -17,11 +17,13 @@ const customColors = [
 export default function Home() {
   const [activeExample, setActiveExample] = useState<
     "basic" | "custom" | "recording" | "streaming"
-  >("streaming");
+  >("recording");
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
+  const [disableRecordingBtn, setDisableRecordingBtn] = useState(true);
+  const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
 
   // Basic example stream handler
   const handleBasicStreamReady = (stream: MediaStream) => {
@@ -41,25 +43,50 @@ export default function Home() {
 
   // Recording example handler
   const handleRecordingStreamReady = (stream: MediaStream) => {
+    console.log("handleRecordingStreamReady", stream);
+    console.log("isRecording", isRecording);
+
+    stream.getTracks().forEach(track => {
+        track.onended = () => {
+            console.error(`Track ended unexpectedly: ${track.kind}`);
+            // The recorder will stop automatically if all tracks end.
+        };
+        track.onmute = () => {
+            console.warn(`Track muted: ${track.kind}`);
+            // Recording continues but no data is generated during mute
+        };
+        track.onunmute = () => {
+            console.log(`Track unmuted: ${track.kind}`);
+        };
+    })
+
+    const mimeType = "video/mp4; codecs=vp9";
     mediaRecorder.current = new MediaRecorder(stream, {
-      mimeType: "video/webm",
+      mimeType: mimeType
     });
+    setDisableRecordingBtn(false);
 
     mediaRecorder.current.ondataavailable = (e) => {
-      if (e.data.size > 0) {
-        chunks.current.push(e.data);
-      }
+      console.log("dataavailable", e.data);
+      chunks.current.push(e.data);
     };
 
     mediaRecorder.current.onstop = () => {
-      const blob = new Blob(chunks.current, { type: "video/webm" });
+      console.log("onstop", chunks.current);
+      const blob = new Blob(chunks.current, { type: mimeType });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `drawing-${new Date().toISOString()}.webm`;
-      a.click();
+      setVideoUrl(url);
       chunks.current = [];
+
+      if (blob.size === 0) {
+        console.error("Blob is empty");
+      }
     };
+
+    mediaRecorder.current.onerror = (e) => {
+      console.error("error", e);
+    };
+
   };
 
   const toggleRecording = () => {
@@ -68,7 +95,7 @@ export default function Home() {
     if (isRecording) {
       mediaRecorder.current.stop();
     } else {
-      mediaRecorder.current.start();
+      mediaRecorder.current.start(1000);
     }
     setIsRecording(!isRecording);
   };
@@ -162,7 +189,7 @@ export default function Home() {
               <button
                 onClick={toggleRecording}
                 className={`record-button ${isRecording ? "recording" : ""}`}
-                disabled={!mediaRecorder.current}
+                disabled={disableRecordingBtn}
               >
                 {isRecording ? "⏹ Stop Recording" : "⏺ Start Recording"}
               </button>
@@ -172,12 +199,16 @@ export default function Home() {
             </div>
             <div className="canvas-wrapper">
               <DrawingCanvas
+                stabilizeStream={false}
                 onStreamReady={handleRecordingStreamReady}
                 fps={60}
                 initialColor="#FF0000"
                 className="drawing-canvas-container"
                 canvasClassName="custom-canvas"
               />
+              <div>
+                <video src={videoUrl} controls autoPlay muted></video>
+              </div>
             </div>
           </div>
         )}
